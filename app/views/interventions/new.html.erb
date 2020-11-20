@@ -51,16 +51,16 @@
 									</div>
 									<div class = "row">
 										<div class="col-sm-3", id="building">
-											<%= f.select(:building_id, options_from_collection_for_select(Building.all, :id, :id), {prompt: "---Select---", label: "Building ID *"}, {class: 'custom-select mb-0 mr-sm-0 mb-sm-0', required: true}) %>
+											<%= f.select(:building_id, options_from_collection_for_select(Building.all, :id, :definition), {prompt: "---Select---", label: "Building ID *"}, {class: 'custom-select mb-0 mr-sm-0 mb-sm-0', required: true}) %>
 										</div>
 										<div class="col-sm-3", id="battery">
-										<%= f.select(:battery_id, options_from_collection_for_select(Battery.all, :id, :id), {prompt: "---Select---", label: "Battery ID"}, {class: 'custom-select mb-0 mr-sm-0 mb-sm-0'}) %>
+										<%= f.select(:battery_id, options_from_collection_for_select(Battery.all, :id, :definition), {prompt: "---Select---", label: "Battery ID"}, {class: 'custom-select mb-0 mr-sm-0 mb-sm-0'}) %>
 										</div>
 										<div class="col-sm-3", id="column">
-										<%= f.select(:column_id, options_from_collection_for_select(Column.all, :id, :id), {prompt: "---Select---", label: "Column ID"}, {class: 'custom-select mb-0 mr-sm-0 mb-sm-0'}) %> 
+										<%= f.select(:column_id, options_from_collection_for_select(Column.all, :id, :definition), {prompt: "---Select---", label: "Column ID"}, {class: 'custom-select mb-0 mr-sm-0 mb-sm-0'}) %> 
 										</div>
 										<div class="col-sm-3", id= "elevator">
-										<%= f.select(:elevator_id, options_from_collection_for_select(Elevator.all, :id, :id), {prompt: "---Select---", label: "ElevatorID "}, {class: 'custom-select mb-0 mr-sm-0 mb-sm-0'}) %>
+										<%= f.select(:elevator_id, options_from_collection_for_select(Elevator.all, :id, :definition), {prompt: "---Select---", label: "ElevatorID "}, {class: 'custom-select mb-0 mr-sm-0 mb-sm-0'}) %>
 										</div>
 									</div>
 									<div class="row">
@@ -106,7 +106,6 @@
 
             var itemId = $("#" + item + "_id").val();
 
-
             if (itemId != "" && itemId != "---Select---" ){
                 
             console.log("#######");
@@ -122,11 +121,12 @@
                     success: function (response) {
                         console.log(response);
                         var elements = response["elements"];
+						var list = response["list"]
                         $("select#" + element +"_id option").remove();
 
                         $("#" + element +"_id").append('<option value = "">---Select---</option>');
                         for(var i = 0; i < elements.length; i++){
-                            $("#" + element +"_id").append('<option value="' + elements[i]["id"] + '">' + elements[i]["id"] + '</option>');
+                            $("#" + element +"_id").append('<option value="' + elements[i]["id"] + '">' + list[i] + '</option>');
                         }
                     }
 
@@ -137,33 +137,35 @@
 
         $("#customer_id").change(function(){
 
-			$("#building").hide();
-			$("#battery").hide();
-			$("#column").hide();
-			$("#elevator").hide();
             ajaxCall("customer", "building")
-            });
+        });
 
         $("#building_id").change(function(){
 
-			$("#battery").hide();
-			$("#column").hide();
-			$("#elevator").hide();
             ajaxCall("building", "battery")
-			});
+		});
 			
         $("#battery_id").change(function(){
 
-			$("#column").hide();
-			$("#elevator").hide();
             ajaxCall("battery", "column")
-			});
+			
+			$("#column_id").val("")
+			$("#elevator_id").val("")
+		});
 			
         $("#column_id").change(function(){
 
-			$("#elevator").hide();
             ajaxCall("column", "elevator")
-            });
+
+			$("#battery_id").val("")
+			$("#elevator_id").val("")
+        });
+
+		$("#elevator_id").change(function(){
+		
+			$("#battery_id").val("")
+			$("#column_id").val("")
+        });
 
     });
 

@@ -4,4 +4,9 @@ class Building < ApplicationRecord
     has_many    :buildings_details
     belongs_to  :address
     has_many    :interventions
+
+    def definition
+        self.address.address 
+    end
+
 end

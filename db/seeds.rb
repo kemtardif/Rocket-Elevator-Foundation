@@ -373,7 +373,7 @@ def faker_data
               battery_ = battery_create(customer_.date_create, type_building, ba, status_)
               building_.batteries << battery_
 
-              battery_.interventions << inter_
+ 
 
              
 
@@ -382,7 +382,7 @@ def faker_data
                   column_ = column_create(status_, battery_.type_building, co)
                   battery_.columns << column_  
 
-                  column_.interventions << inter_
+
 
                 
 

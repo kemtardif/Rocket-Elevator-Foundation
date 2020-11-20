@@ -43,6 +43,8 @@ class InterventionsController < ApplicationController
     end
     
     def search
+
+        @list = []
             if params["type"] == "building"
                 @elements = Customer.find(params[:itemId]).buildings
             elsif params["type"] == "battery"
@@ -52,10 +54,16 @@ class InterventionsController < ApplicationController
             elsif params["type"] == "elevator"
                 @elements = Column.find(params[:itemId]).elevators
             end
+
+        for element in @elements
+            @list << element.definition
+        end
+
         if request.xhr?
             respond_to do |format|
                 format.json {
-                    render json: {elements: @elements}
+                    render json: {elements: @elements,
+                                    list: @list}
                 }
             end
         end

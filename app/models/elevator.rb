@@ -4,6 +4,10 @@ class Elevator < ApplicationRecord
 
     after_update :call_tech
     has_many :interventions
+
+    def definition
+        "(ID: " + "#{self.id}" + ") " + self.serial_number
+    end
     
 
     private
@@ -29,9 +33,6 @@ class Elevator < ApplicationRecord
             
         
     end
-
-    
-
 
 end
 
