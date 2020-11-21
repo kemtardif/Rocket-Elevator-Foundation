@@ -16,7 +16,7 @@ https://kemverynice.com/
 
 -To access the admin section as...an admin! Use kem@tardif.com with password. The admin can access all tables, but cannot request an intervention. 
 -All employees in the list Codeboxx gave use has access to the backdoor, with limited informations on the various tables. They can access
-the intervention page, which become visible in the admin drop-down menu once you're logged in.
+the intervention page, which become visible in the admin drop-down menu once you're logged in. EXAMPLE: nicolas.genest@codeboxx.biz, password nicolas
 
 -To login into the superkem.zendesk.com workspace and access the leads, quotes and interventions ticket, use the credentials "tardif.kremlin@gmail.com", 
 with password "Poplokov66".
