@@ -185,6 +185,8 @@ PUT https://rocket-elevators-foundation-restapi.azurewebsites.net/api/interventi
 -NOTE that the first put will return not found (404) if the request is made on interventions already done or not started yet (as measure of security)
 -NOTE that the second put will return not found (404) on interventions already started or done (as measure of security).
 
+-No parameters are sent for the requests.
+
 -THe relevant part in the code are the intervention model containing the attributes, and the controller with the various end points, similar to those we did last week:
 
 ``c#
