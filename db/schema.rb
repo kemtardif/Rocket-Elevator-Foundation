@@ -12,7 +12,10 @@
 
 ActiveRecord::Schema.define(version: 2020_11_16_170216) do
 
-  create_table "addresses", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
+  create_table "addresses", force: :cascade do |t|
     t.string "type_address"
     t.string "status"
     t.string "entite"
@@ -27,7 +30,7 @@ ActiveRecord::Schema.define(version: 2020_11_16_170216) do
     t.string "full_street_address"
   end
 
-  create_table "batteries", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "batteries", force: :cascade do |t|
     t.string "type_building"
     t.string "status"
     t.date "date_commissioning"
@@ -41,7 +44,7 @@ ActiveRecord::Schema.define(version: 2020_11_16_170216) do
     t.index ["employee_id"], name: "index_batteries_on_employee_id"
   end
 
-  create_table "buildings", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "buildings", force: :cascade do |t|
     t.string "adm_contact_name"
     t.string "adm_contact_mail"
     t.string "adm_contact_phone"
@@ -54,14 +57,14 @@ ActiveRecord::Schema.define(version: 2020_11_16_170216) do
     t.index ["customer_id"], name: "index_buildings_on_customer_id"
   end
 
-  create_table "buildings_details", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "buildings_details", force: :cascade do |t|
     t.string "info_key"
     t.string "value"
     t.bigint "building_id"
     t.index ["building_id"], name: "index_buildings_details_on_building_id"
   end
 
-  create_table "columns", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "columns", force: :cascade do |t|
     t.string "type_building"
     t.integer "amount_floors_served"
     t.string "status"
@@ -71,7 +74,7 @@ ActiveRecord::Schema.define(version: 2020_11_16_170216) do
     t.index ["battery_id"], name: "index_columns_on_battery_id"
   end
 
-  create_table "customers", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "customers", force: :cascade do |t|
     t.date "date_create"
     t.string "company_name"
     t.string "cpy_contact_name"
@@ -87,7 +90,16 @@ ActiveRecord::Schema.define(version: 2020_11_16_170216) do
     t.index ["user_id"], name: "index_customers_on_user_id"
   end
 
-  create_table "elevators", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "dim_customers", force: :cascade do |t|
+    t.date "creation_date"
+    t.string "company_name"
+    t.string "cpy_contact_name"
+    t.string "cpy_contact_email"
+    t.integer "amount_elevator"
+    t.string "customer_city"
+  end
+
+  create_table "elevators", force: :cascade do |t|
     t.string "serial_number"
     t.string "model"
     t.string "type_building"
@@ -101,7 +113,7 @@ ActiveRecord::Schema.define(version: 2020_11_16_170216) do
     t.index ["column_id"], name: "index_elevators_on_column_id"
   end
 
-  create_table "employees", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "employees", force: :cascade do |t|
     t.string "first_name"
     t.string "last_name"
     t.string "title"
@@ -109,7 +121,44 @@ ActiveRecord::Schema.define(version: 2020_11_16_170216) do
     t.index ["user_id"], name: "index_employees_on_user_id"
   end
 
-  create_table "interventions", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "fact_contacts", force: :cascade do |t|
+    t.integer "contact_id"
+    t.date "creation_date"
+    t.string "company_name"
+    t.string "email"
+    t.string "project_name"
+  end
+
+  create_table "fact_elevators", force: :cascade do |t|
+    t.string "serial_number"
+    t.date "commissioning_date"
+    t.string "building_id"
+    t.string "customer_id"
+    t.string "building_city"
+  end
+
+  create_table "fact_intervention", force: :cascade do |t|
+    t.integer "employee_id"
+    t.integer "building_id"
+    t.integer "battery_id"
+    t.integer "column_id"
+    t.integer "elevator_id"
+    t.datetime "start_date_intervention"
+    t.datetime "end_date_intervention"
+    t.string "result"
+    t.text "report"
+    t.string "status"
+  end
+
+  create_table "fact_quotes", force: :cascade do |t|
+    t.integer "quote_id"
+    t.date "creation_date"
+    t.string "company_name"
+    t.string "email"
+    t.integer "amount_elevator"
+  end
+
+  create_table "interventions", force: :cascade do |t|
     t.date "startDateIntervention"
     t.date "endDateIntervention"
     t.string "result", default: "Incomplete"
@@ -131,7 +180,7 @@ ActiveRecord::Schema.define(version: 2020_11_16_170216) do
     t.index ["employee_id"], name: "index_interventions_on_employee_id"
   end
 
-  create_table "leads", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "leads", force: :cascade do |t|
     t.string "full_name"
     t.string "company_name"
     t.string "email"
@@ -140,14 +189,14 @@ ActiveRecord::Schema.define(version: 2020_11_16_170216) do
     t.string "project_description"
     t.string "department"
     t.text "message"
-    t.binary "attached_file", limit: 16777215
+    t.binary "attached_file"
     t.date "create_at"
     t.bigint "customer_id"
     t.string "name_attached_file"
     t.index ["customer_id"], name: "index_leads_on_customer_id"
   end
 
-  create_table "quotes", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "quotes", force: :cascade do |t|
     t.string "company_name"
     t.string "building_type"
     t.integer "apps_qty"
@@ -165,7 +214,7 @@ ActiveRecord::Schema.define(version: 2020_11_16_170216) do
     t.date "create_at"
   end
 
-  create_table "roles", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "roles", force: :cascade do |t|
     t.string "name"
     t.string "resource_type"
     t.bigint "resource_id"
@@ -176,7 +225,7 @@ ActiveRecord::Schema.define(version: 2020_11_16_170216) do
     t.index ["resource_type", "resource_id"], name: "index_roles_on_resource_type_and_resource_id"
   end
 
-  create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
@@ -186,7 +235,7 @@ ActiveRecord::Schema.define(version: 2020_11_16_170216) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "users_roles", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "users_roles", id: false, force: :cascade do |t|
     t.bigint "user_id"
     t.bigint "role_id"
     t.index ["role_id"], name: "index_users_roles_on_role_id"
