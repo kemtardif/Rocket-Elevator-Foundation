@@ -33,7 +33,11 @@ gem "bootstrap_form", "~> 4.0"
 gem 'toastr-rails'
 
 
-#######
+#######TDD##############################
+
+gem 'faraday'
+gem 'sinatra'
+gem 'vcr'
 
 
 # Use ActiveStorage variant
@@ -71,6 +75,8 @@ group :test do
   gem 'selenium-webdriver'
   # Easy installation and use of chromedriver to run system tests with Chrome
   gem 'chromedriver-helper'
+
+  gem 'webmock'
 
   gem 'rspec-rails'
 end
