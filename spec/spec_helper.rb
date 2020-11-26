@@ -42,6 +42,9 @@ RSpec.configure do |config|
   config.include Capybara::DSL
 
 
+  ############ LIST OF THE VARIOUS STUBS NEEDED TO MAKE THE REQUIRED TESTS
+
+
   config.before(:each) do
     stub_request(:get, "http://api.openweathermap.org/data/2.5/weather?appid=7b69ac2d5782ffb6d49764e85311576a&q=montreal,ca&units=metric").
     with(

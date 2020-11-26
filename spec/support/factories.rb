@@ -1,5 +1,6 @@
 require 'factory_girl'
 
+
 FactoryGirl.define do
     factory :intervention do |f|
         f.author_id 1
