@@ -132,6 +132,30 @@ RSpec.configure do |config|
     }).
   to_return(status: 200, body: "", headers: {})
 
+  stub_request(:post, "https://hooks.slack.com/services/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").
+  with(
+    body: {"payload"=>"{\"text\":\"The Elevator with id '1004' With serial number '' change status from 'status' to 'Intervention'\"}"},
+    headers: {
+   'Accept'=>'*/*',
+   'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+   'Content-Type'=>'application/x-www-form-urlencoded',
+   'User-Agent'=>'Ruby'
+    }).
+  to_return(status: 200, body: "", headers: {})
+
+  stub_request(:post, "https://api.twilio.com/2010-04-01/Accounts/AC434e0528909bdfcc88f86f568eb71098/Messages.json").
+  with(
+    body: {"Body"=>"The Elevator with id '1004', in building with id '1001' needs to be repaired by 'Jimmy'. His phone number is '111-111-1111'", "From"=>"+17657198971", "To"=>"+15819831152"},
+    headers: {
+   'Accept'=>'application/json',
+   'Accept-Charset'=>'utf-8',
+   'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+   'Authorization'=>'Basic QUM0MzRlMDUyODkwOWJkZmNjODhmODZmNTY4ZWI3MTA5ODoyZGZhYTUwNTE0ZGE0NjQyMmUyMzIzYTg2YjUxODRlNw==',
+   'Content-Type'=>'application/x-www-form-urlencoded',
+   'User-Agent'=>'twilio-ruby/5.42.0 (ruby/x86_64-linux 2.6.5-p114)'
+    }).
+  to_return(status: 200, body: "", headers: {})
+
 
   end
 

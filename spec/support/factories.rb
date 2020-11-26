@@ -23,4 +23,23 @@ FactoryGirl.define do
         f.user_id 1
         f.user FactoryGirl.build_stubbed(:user)
     end
+
+    factory :building do |f|
+        f.tect_contact_name "Jimmy"
+        f.tect_contact_phone "111-111-1111"
+    end
+
+    factory :battery do |f|
+        f.building FactoryGirl.build_stubbed(:building)
+    end
+
+    factory :column do |f|
+        f.battery FactoryGirl.build_stubbed(:battery)
+    end
+
+    factory :elevator do |f|
+        f.column FactoryGirl.build_stubbed(:column)
+        f.status "status"
+    end
 end
+
