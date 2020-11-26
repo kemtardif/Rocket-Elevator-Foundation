@@ -18,8 +18,8 @@ Rails.application.routes.draw do
   get '/charts'       => 'pages#charts'
   get '/diagram'      => 'pages#diagram'
 
- 
-  post "/interventions/new"         => "interventions#create"
+  get "/interventions/new"   => "interventions#new"
+  post "/interventions/new"   => "interventions#create"
   get '/search'               => "interventions#search"
 
 

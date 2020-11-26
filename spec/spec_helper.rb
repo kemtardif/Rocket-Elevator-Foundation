@@ -3,22 +3,27 @@
 # The generated `.rspec` file contains `--require spec_helper` which will cause
 # this file to always be loaded, without a need to explicitly require it in any
 # files.
+
+ENV["RAILS_ENV"] ||= 'test'
+require File.expand_path("../../config/environment", __FILE__)
+require 'rspec/rails'
+
+
 require 'webmock/rspec'
 require 'rails_helper'
+require 'capybara/rails'
+require 'capybara/rspec'
 include WebMock::API
+require 'factory_girl'
+#require 'capybara'
 
 
 WebMock.disable_net_connect!(allow_localhost: true)
+Capybara.app_host = 'localhost:3000'
+Dir[Rails.root.join('spec/support/**/*.rb')].each { |f| require f }
+#Recaptcha.configuration.skip_verify_env.delete("test")
+Capybara.app_host = 'localhost:3000'
 
-{
-    "articles": [
-        {
-            "source": {
-                "id": "the-wall-street-journal",
-                "name": "The Wall Street Journal"
-            }
-          }]
-}
 
 #
 # Given that it is always loaded, you are encouraged to keep this file as
@@ -31,6 +36,11 @@ WebMock.disable_net_connect!(allow_localhost: true)
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
+
+  config.include FactoryGirl::Syntax::Methods
+  config.include Rails.application.routes.url_helpers
+  config.include Capybara::DSL
+
 
   config.before(:each) do
     stub_request(:get, "http://api.openweathermap.org/data/2.5/weather?appid=7b69ac2d5782ffb6d49764e85311576a&q=montreal,ca&units=metric").
@@ -76,9 +86,59 @@ RSpec.configure do |config|
                       }
                     }
                   ]}.to_json, headers: {})
+    
+    stub_request(:post, "https://superkem.zendesk.com/api/v2/tickets").
+    with(
+      body: "{\"ticket\":{\"subject\":\"Intervention required by Bob the Builder\",\"comment\":{\"body\":\"The Employee with ID 1 sent an intervention request for the company 'Rosenbaum-Harber'.\\n\\t\\tThey is an issue with building 2. Description of the request for intervention: Hello World.They mentionned the battery with ID 3.\\n\\t\\t\\tThe column with ID 4 was specified.\\n\\t\\t\\tThe elevator with ID 5 was selected.\\n\\t\\t\\tThe employee with ID  must be contacted.\\n\\t\\t\\tPlease follow-up with the person in charge. Thank you.\"},\"type\":\"problem\"}}",
+      headers: {
+      'Accept'=>'application/json',
+      'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+      'Authorization'=>'Basic dGFyZGlmLmtyZW1saW5AZ21haWwuY29tL3Rva2VuOjlUbGlpNTg4ZGlpVFlDc0VyQWp2dlRxZVU1eVJmSENlcDNyRGJMc0k=',
+      'Content-Type'=>'application/json',
+      'User-Agent'=>'ZendeskAPI Ruby 1.28.0'
+      }).
+    to_return(status: 200, body: "", headers: {})
+
+    stub_request(:get, "https://www.recaptcha.net/recaptcha/api/siteverify?remoteip=127.0.0.1&response=%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20&secret=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe").
+    with(
+      headers: {
+     'Accept'=>'*/*',
+     'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+     'User-Agent'=>'Ruby'
+      }).
+    to_return(status: 200, body: "", headers: {})
+
+    stub_request(:post, "https://superkem.zendesk.com/api/v2/tickets").
+    with(
+      body: "{\"ticket\":{\"subject\":\"name from compagny\",\"comment\":{\"body\":\"The contact name from company compagny can be reached at email  abc@abc.com and at phone number .  has a project named project which would require contribution from Rocket Elevators.\\n Project description: description\\nAttached Message: message\"}}}",
+      headers: {
+     'Accept'=>'application/json',
+     'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+     'Authorization'=>'Basic dGFyZGlmLmtyZW1saW5AZ21haWwuY29tL3Rva2VuOjlUbGlpNTg4ZGlpVFlDc0VyQWp2dlRxZVU1eVJmSENlcDNyRGJMc0k=',
+     'Content-Type'=>'application/json',
+     'User-Agent'=>'ZendeskAPI Ruby 1.28.0'
+      }).
+    to_return(status: 200, body: "", headers: {})
+
+    stub_request(:post, "https://api.sendgrid.com/v3/mail/send").
+  with(
+    body: "{\"from\":{\"email\":\"tardif.kremlin@gmail.com\"},\"personalizations\":[{\"to\":[{\"email\":\"abc@abc.com\"}],\"dynamic_template_data\":{\"fullName\":\"name\",\"projectName\":\"project\"}}],\"template_id\":\"d-25e02690608041c3b521a2dc34f072da\"}",
+    headers: {
+          'Accept'=>'application/json',
+          'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+          'Authorization'=>'Bearer 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',
+          'Content-Type'=>'application/json',
+          'User-Agent'=>'sendgrid/6.3.7;ruby'
+    }).
+  to_return(status: 200, body: "", headers: {})
 
 
   end
+
+  config.include Devise::Test::ControllerHelpers, :type => :controller
+  config.include Devise::Test::IntegrationHelpers, type: :request
+  config.include Devise::TestHelpers, :type => :controller
+ 
 
 
   # rspec-expectations config goes here. You can use an alternate

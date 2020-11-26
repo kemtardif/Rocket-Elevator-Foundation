@@ -2,7 +2,8 @@ class InterventionsController < ApplicationController
     before_action :authenticate_user!
     before_action :check_employee
 
-    def new  
+    def new 
+
     end
 
     def check_employee
@@ -23,7 +24,7 @@ class InterventionsController < ApplicationController
                 :report))
 
         @intervention.author_id = current_user.employee.id
-        @intervention.save
+
 
         if @intervention.save
             redirect_to root_path, notice: "Your Intervention Request was succesfully sent!"
