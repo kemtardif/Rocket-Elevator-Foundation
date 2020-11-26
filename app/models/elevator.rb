@@ -10,11 +10,15 @@ class Elevator < ApplicationRecord
     end
     
 
-    private
+    #private
         def call_tech 
             if self.status == "Intervention" or self.status == "intervention" then 
                 message = "The Elevator with id '#{self.id}', in building with id '#{self.column.battery.building.id}' needs to be repaired by '#{self.column.battery.building.tect_contact_name}'. His phone number is '#{self.column.battery.building.tect_contact_phone}'"
-                TwilioTextMessenger.new(message).call
+               
+                twilio = TwilioTextMessenger.new(message)
+                
+                twilio.call
+
             end
         end
         
