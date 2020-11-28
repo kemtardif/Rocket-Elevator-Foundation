@@ -80,7 +80,7 @@
 	expect(current_path).to eq root_path   
 ```
 	
-	-We test the create intervention path : we first skip authentification (this is not what is tested here) and make a post request with the required parameters to the 			create path of the interventions controller and expect Intervention.count +1 (intervention is created), expect a redirect and a flash notice :
+-We test the create intervention path : we first skip authentification (this is not what is tested here) and make a post request with the required parameters to the 			create path of the interventions controller and expect Intervention.count +1 (intervention is created), expect a redirect and a flash notice :
 	
 ```ruby
 	expect { post :create, params: valid_params }.to change(Intervention, :count).by(1)
@@ -88,7 +88,7 @@
 	expect(flash[:notice]).to match("Your Intervention Request was succesfully sent!")
 ```
 	
-	-We test a lead creation, but this time by visiting the root page and filling in the required  form fields. We again expect Lead.count +1, a redirect to the top of page 
+-We test a lead creation, but this time by visiting the root page and filling in the required  form fields. We again expect Lead.count +1, a redirect to the top of page 
 		and a flash notice :
 		
 ```ruby
@@ -98,7 +98,7 @@
 	expect(current_path).to eq "/home"
 ```
 	
-	-Finally, we check the Twilio service to be called when an elevator is updated. At update, we expect The Twilio model to create an instance with the right message, 
+-Finally, we check the Twilio service to be called when an elevator is updated. At update, we expect The Twilio model to create an instance with the right message, 
 		and make a stub of that instance and expect that the "call" method is...called :
 		
 ```ruby
@@ -107,27 +107,27 @@
 
 	elevator.run_callbacks :update
 ```
-	-Factory_girl was used to create stubs of all the required instances, thus not having to actually connect to the database. The factory AND the macro used for employee 			login are found in spec/support.
+-Factory_girl was used to create stubs of all the required instances, thus not having to actually connect to the database. The factory AND the macro used for employee 			login are found in spec/support.
 	
 ### Explanations for third requirement:
 
-	-For ElevatorMedia in dotnet, we have to folders, one for the actual ElevatorMedia name space and one for tests. The logic is a bit different here :
-		the streamer class as string attributes:
+-For ElevatorMedia in dotnet, we have to folders, one for the actual ElevatorMedia name space and one for tests. The logic is a bit different here :
+	the streamer class as string attributes:
 ```csharp
 	public string news {  get;  set;  }  
 	public string advertizing {  get;  set;  }  
 	public string temperature {  get;  set;  }
 	public string content {  get;  set;  }  
 ```
-	-We call the three methods, which will set those attributes to the desired strings. Thos methods are called in GetContent, setting the attributes, and we then concanate and return. 
-	- To test, we first mock the httpClient in the test setup :
+-We call the three methods, which will set those attributes to the desired strings. Thos methods are called in GetContent, setting the attributes, and we then concanate and 		return. 
+- To test, we first mock the httpClient in the test setup :
 ```csharp
     _streamer = new Streamer();
     _handler = new Mock<HttpMessageHandler>();
     _client = _handler.CreateClient();
  ```
 	 
-	 -We then set the handle attribute to the api route to mock and the mock response. WE then call the api and check the status and expect non-empty request body :
+ -We then set the handle attribute to the api route to mock and the mock response. WE then call the api and check the status and expect non-empty request body :
  ```csharp
 	_handler.SetupRequest(HttpMethod.Get, urlTemperature)
    .ReturnsResponse("{'main':{'temp':0,'feels_like':1}}");  
@@ -138,12 +138,12 @@
     Assert.True(response.IsSuccessStatusCode);
     Assert.That( content, Is.Not.Empty);
  ```
-	   -We only check for a single route, since this is redundant and the code is exactly the same for the other routes. we then check that the methods setting the 		attributes to the right string :
+-We only check for a single route, since this is redundant and the code is exactly the same for the other routes. we then check that the methods setting the 				attributes to the right string :
 ```csharp
     Assert.That( _streamer.news, Is.Not.Empty);
     Assert.AreEqual( "<div> World News : The Wall Street Journal</div>", _streamer.news );
 ```
-	-Finally, we check that getContent return the right string, containing the right informations :
+-Finally, we check that getContent return the right string, containing the right informations :
 ```csharp
 	Assert.That( _streamer.content, Is.Not.Empty);
     Assert.IsTrue(_streamer.content.Contains(_streamer.temperature));
