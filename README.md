@@ -11,12 +11,12 @@
 -The following gem were added (Faraday wasn't used) :
 
 ```ruby
-gem 'faraday'
-gem 'sinatra'
-gem 'vcr'
-gem 'factory_girl', '~> 4.9'
-gem 'webmock'
-gem 'rspec-rails'
+	gem 'faraday'
+	gem 'sinatra'
+	gem 'vcr'
+	gem 'factory_girl', '~> 4.9'
+	gem 'webmock'
+	gem 'rspec-rails'
 ```
 - The lib/ElevatorMedia/ElevatorMedia.rb contain the module to be tested. Implemented there are three methods giving various content : Temperature, Advertizing and News. The three are expected to make api calls to various endpoint and return the needed string of information. The getContent method just concacenate the strings to return the HTML information.
 
@@ -51,7 +51,7 @@ gem 'rspec-rails'
 -The test passed, we can use this in production code. We then expect the method ElevatorMedia.Temperature to return the string we want :
 
 ```ruby
-expect(temperature).to eq "<div> It is currently -0.13°C in Montreal, and it feels like 0°C!</div>"
+	expect(temperature).to eq "<div> It is currently -0.13°C in Montreal, and it feels like 0°C!</div>"
 ```
 -This is possible by JSON-parsing the request body and extract the right information, which is done in the method to make the test pass :
 
@@ -73,39 +73,39 @@ expect(temperature).to eq "<div> It is currently -0.13°C in Montreal, and it fe
 		path of "/interventions/new". We then test for a user that's not an employee and expect a redirect to the root path :
 	
 	```ruby
-	@user = FactoryGirl.build_stubbed(:user, employee: nil)
-        sign_in @user
-        
-        visit new_intervention_url
-        expect(current_path).to eq root_path   
+		@user = FactoryGirl.build_stubbed(:user, employee: nil)
+		sign_in @user
+
+		visit new_intervention_url
+		expect(current_path).to eq root_path   
 	```
 	
 	-We test the create intervention path : we first skip authentification (this is not what is tested here) and make a post request with the required parameters to the 			create path of the interventions controller and expect Intervention.count +1 (intervention is created), expect a redirect and a flash notice :
 	
 	```ruby
-	expect { post :create, params: valid_params }.to change(Intervention, :count).by(1)
-        expect(response.status).to eq(302)
-        expect(flash[:notice]).to match("Your Intervention Request was succesfully sent!")
+		expect { post :create, params: valid_params }.to change(Intervention, :count).by(1)
+		expect(response.status).to eq(302)
+		expect(flash[:notice]).to match("Your Intervention Request was succesfully sent!")
 	```
 	
 	-We test a lead creation, but this time by visiting the root page and filling in the required  form fields. We again expect Lead.count +1, a redirect to the top of page 
 		and a flash notice :
 		
 	```ruby
-	expect {click_button "btnForm"}.to change(Lead, :count).by(1)
+		expect {click_button "btnForm"}.to change(Lead, :count).by(1)
 
-        expect(page).to have_content 'Message Sent!'
-        expect(current_path).to eq "/home"
+		expect(page).to have_content 'Message Sent!'
+		expect(current_path).to eq "/home"
 	```
 	
 	-Finally, we check the Twilio service to be called when an elevator is updated. At update, we expect The Twilio model to create an instance with the right message, 
 		and make a stub of that instance and expect that the "call" method is...called :
 		
 	```ruby
-	expect(TwilioTextMessenger).to receive(:new).with(message).and_return(twilio)
-    	expect(twilio).to receive(:call)
+		expect(TwilioTextMessenger).to receive(:new).with(message).and_return(twilio)
+		expect(twilio).to receive(:call)
 
-    	elevator.run_callbacks :update
+		elevator.run_callbacks :update
 	```
 	-Factory_girl was used to create stubs of all the required instances, thus not having to actually connect to the database. The factory AND the macro used for employee 			login are found in spec/support.
 	
@@ -123,23 +123,23 @@ expect(temperature).to eq "<div> It is currently -0.13°C in Montreal, and it fe
 	- To test, we first mock the httpClient in the test setup :
 	```c#
 	    _streamer = new Streamer();
-            _handler = new Mock<HttpMessageHandler>();
-            _client = _handler.CreateClient();
+	    _handler = new Mock<HttpMessageHandler>();
+	    _client = _handler.CreateClient();
 	 ```
 	 
 	 -We then set the handle attribute to the api route to mock and the mock response. WE then call the api and check the status and expect non-empty request body :
 	 ```c#
 		_handler.SetupRequest(HttpMethod.Get, urlTemperature)
-           .ReturnsResponse("{'main':{'temp':0,'feels_like':1}}");  
-                    
-            var response = _client.GetAsync(urlTemperature).Result;
-            var content = response.Content.ReadAsStringAsync().Result;
-            
-            Assert.True(response.IsSuccessStatusCode);
-            Assert.That( content, Is.Not.Empty);
-	    ```
+	   .ReturnsResponse("{'main':{'temp':0,'feels_like':1}}");  
+
+	    var response = _client.GetAsync(urlTemperature).Result;
+	    var content = response.Content.ReadAsStringAsync().Result;
+
+	    Assert.True(response.IsSuccessStatusCode);
+	    Assert.That( content, Is.Not.Empty);
+	 ```
 	   -We only check for a single route, since this is redundant and the code is exactly the same for the other routes. we then check that the methods setting the 		attributes to the right string :
-	   ```c#
+	```c#
 	    Assert.That( _streamer.news, Is.Not.Empty);
             Assert.AreEqual( "<div> World News : The Wall Street Journal</div>", _streamer.news );
         ```
