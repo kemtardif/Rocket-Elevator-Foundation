@@ -8,12 +8,12 @@ RSpec.describe InterventionsController, type: :controller do
 
     ### We first stub an employee, which is needed to access the page
 
-    let!(:employee) {FactoryGirl.build_stubbed(:employee)}
+    let!(:user) {FactoryGirl.build_stubbed(:user)}
     
     #### Allow to bypass authentification process, which is not what we test
 
     before { allow(controller).to receive(:authenticate_user!).and_return(true) }
-    before { allow(controller).to receive(:current_user) { employee.user } }
+    before { allow(controller).to receive(:current_user) { user } }
 
     #### Mock intervention form
 

@@ -1,219 +1,160 @@
-# Rocket_Elevators_CONSOLIDATION_WEEK
+# Rocket_Elevators : Quality and TDD
 
 ### Requirements:
 
--Making sure all prior services are working.
--Implementation of a new table "interventions" in MYSQL database and a new form page for employees to request new Interventions. A zendesk ticket is sent at request.
--Populate the database with new interventions
--Creaing an REST api with with the start and end date of specific interventions can be changed.
+-Implement and test (using Rspec) a new ElevatorMedia module with single class Streamer, having a method getContent that return a string of HTML media content.
+-Implementation of tests for various section of the RoR app.
+-Implement and test (using Nunit) of the ElevatorMedia namespace with single class Streamer, having a method getContent that return a string of HTML media content.
 
--MSQL db : kemtardifMSQL
--PSQL db : kemtardifPSQL
-
-https://kemverynice.com/
+-NOTE : this the updated readme and include the informations for rails and csharp.
 
 ### Explanations for first requirement:
 
--To access the admin section as...an admin! Use kem@tardif.com with password. The admin can access all tables, but cannot request an intervention. 
--All employees in the list Codeboxx gave use has access to the backdoor, with limited informations on the various tables. They can access
-the intervention page, which become visible in the admin drop-down menu once you're logged in. EXAMPLE: nicolas.genest@codeboxx.biz, password nicolas
+-The following gem were added (Faraday wasn't used) :
 
--To login into the superkem.zendesk.com workspace and access the leads, quotes and interventions ticket, use the credentials "tardif.kremlin@gmail.com", 
-with password "Poplokov66".
-
--The Dropbox credentials are "tardif.kemlin@gmail.com" (NOTE THE MISSING "R"), with the same password as for Zendesk. Yes, I made two email accounts, because I 
-enjoy wasting my time.
-
--Mathieu's number is set for Twilio API and the slack channel is the same as last week (as requested).
-
-
-### Gems used:
-
-```ruby 
-No additional gem were used.
+```ruby
+	gem 'faraday'
+	gem 'sinatra'
+	gem 'vcr'
+	gem 'factory_girl', '~> 4.9'
+	gem 'webmock'
+	gem 'rspec-rails'
 ```
+- The lib/ElevatorMedia/ElevatorMedia.rb contain the module to be tested. Implemented there are three methods giving various content : Temperature, Advertizing and News. The three are expected to make api calls to various endpoint and return the needed string of information. The getContent method just concacenate the strings to return the HTML information.
+
+-All tests are in the spec/features folder
+
+-The api calls were stubbed in spec/spec_helper.rb using WebMock to return fixed content. For example :
+
+```ruby
+  	config.before(:each) do
+	stub_request(:get, "http://api.openweathermap.org/data/2.5/weather?appid=7b69ac2d5782ffb6d49764e85311576a&q=montreal,ca&units=metric").
+	with(
+	headers: {
+	'Accept'=>'*/*',
+	'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+	'Host'=>'api.openweathermap.org',
+	'User-Agent'=>'Ruby'
+	}).
+	to_return(status: 200, body: {"main":{"temp":-0.13,"feels_like":0}}.to_json, headers: {})
+```
+-The structure of the JSON response is such that no change should be made in production code when using real api calls.
+
+-Takin as an example the test for Temperature, we first check that an api call is valid by returning a status OK and a non-empty body :
+
+```ruby
+        it "return a valid HTTP connection " do
+            response = Net::HTTP.get_response(uri)
+            expect(response).to be_a_kind_of(Net::HTTPOK)
+            expect(response.body).not_to eq nil
+        end
+```
+
+-The test passed, we can use this in production code. We then expect the method ElevatorMedia.Temperature to return the string we want :
+
+```ruby
+	expect(temperature).to eq "<div> It is currently -0.13°C in Montreal, and it feels like 0°C!</div>"
+```
+-This is possible by JSON-parsing the request body and extract the right information, which is done in the method to make the test pass :
+
+```ruby
+        currentTemp = temperatures["main"]["temp"]
+        feelsLike = temperatures["main"]["feels_like"]
+
+        htmlTemp = "<div> It is currently #{currentTemp}°C in Montreal, and it feels like #{feelsLike}°C!</div>"
+
+        return htmlTemp
+```
+
+-The logic for the two other calls is similar. We then test getContent to expect the right string.
 
 ### Explanations for second requirement:
 
-- The intervention table and the various foreign key relations are specified in a single migration, with various belong_to and has_many in the appropriate models :
-
+-The four other tests are : 
+	-Visiting the Intervention page as a logged-in user and check redirect if user is not employee. First, we test for user that is also employee, and expect current 
+		path of "/interventions/new". We then test for a user that's not an employee and expect a redirect to the root path :
+	
 ```ruby
+	@user = FactoryGirl.build_stubbed(:user, employee: nil)
+	sign_in @user
 
-  def change
-    create_table :interventions do |t|
-      t.date       :startDateIntervention
-      t.date       :endDateIntervention
-      t.string         :result, :default => "Incomplete"
-      t.string         :report
-      t.string         :status, :default => "Pending"
-
-    end
-    add_reference :interventions, :author, index: true
-    add_foreign_key :interventions, :employees, column: :author_id
-    add_reference :interventions, :customer, foreign_key: true
-    add_reference :interventions, :building, foreign_key: true
-    add_reference :interventions, :battery, foreign_key: true
-    add_reference :interventions, :column, foreign_key: true
-    add_reference :interventions, :elevator, foreign_key: true
-    add_reference :interventions, :employee, foreign_key: true
-
-  end
+	visit new_intervention_url
+	expect(current_path).to eq root_path   
 ```
-
+	
+-We test the create intervention path : we first skip authentification (this is not what is tested here) and make a post request with the required parameters to the 			create path of the interventions controller and expect Intervention.count +1 (intervention is created), expect a redirect and a flash notice :
+	
 ```ruby
-class Intervention < ApplicationRecord
-    belongs_to :customer
-    belongs_to :building
-    belongs_to :battery, :optional => true
-    belongs_to :column, :optional => true
-    belongs_to :elevator, :optional => true
-    
-    belongs_to :author, class_name: "Employee", :foreign_key => 'author_id'
-    belongs_to :employee, :optional => true, :foreign_key => 'employee_id'
-
-end
+	expect { post :create, params: valid_params }.to change(Intervention, :count).by(1)
+	expect(response.status).to eq(302)
+	expect(flash[:notice]).to match("Your Intervention Request was succesfully sent!")
 ```
-
--Both the html and js script are contained in the same html.erb file in views/interventions/new.html.erb. Instead of multiple ajax calls,  there's a single "ajax call function to which the various form fields ids are passed. Only a single choice can be made between battery, column and elevator and that choice persist in the database. The endpoint for the call in the intervention controller is search, to which is passed the form field id's and "type", selecting an appropriate responde and populating the drop-down menus :
-
+	
+-We test a lead creation, but this time by visiting the root page and filling in the required  form fields. We again expect Lead.count +1, a redirect to the top of page 
+		and a flash notice :
+		
 ```ruby
-            if params["type"] == "building"
-                @elements = Customer.find(params[:itemId]).buildings
-            elsif params["type"] == "battery"
-                @elements = Building.find(params[:itemId]).batteries
-            elsif params["type"] == "column"
-                @elements = Battery.find(params[:itemId]).columns
-            elsif params["type"] == "elevator"
-                @elements = Column.find(params[:itemId]).elevators
-            end
+	expect {click_button "btnForm"}.to change(Lead, :count).by(1)
+
+	expect(page).to have_content 'Message Sent!'
+	expect(current_path).to eq "/home"
 ```
-
--The "definition" method is specific to each models and is just a way to have nice input values in the drop-down, instead of only ids. It return a string and make send back an array of strings to the front end to name the elements in the drop-down:
-
-For example, in the battery model :
-
+	
+-Finally, we check the Twilio service to be called when an elevator is updated. At update, we expect The Twilio model to create an instance with the right message, 
+		and make a stub of that instance and expect that the "call" method is...called :
+		
 ```ruby
-    def definition
-        "(ID: " + "#{self.id}) " + self.cert_ope
-    end
+	expect(TwilioTextMessenger).to receive(:new).with(message).and_return(twilio)
+	expect(twilio).to receive(:call)
+
+	elevator.run_callbacks :update
 ```
+-Factory_girl was used to create stubs of all the required instances, thus not having to actually connect to the database. The factory AND the macro used for employee 			login are found in spec/support.
+	
+### Explanations for third requirement:
 
--In the intervention controller:
-
-```ruby
-        for element in @elements
-            @list << element.definition
-        end
+-For ElevatorMedia in dotnet, we have to folders, one for the actual ElevatorMedia name space and one for tests. The logic is a bit different here :
+	the streamer class as string attributes:
+```csharp
+	public string news {  get;  set;  }  
+	public string advertizing {  get;  set;  }  
+	public string temperature {  get;  set;  }
+	public string content {  get;  set;  }  
 ```
--And finally in the javascript:
-
-```javascript
-
- $("#" + element +"_id").append('<option value="' + elements[i]["id"] + '">' + list[i] + '</option>');
+-We call the three methods, which will set those attributes to the desired strings. Thos methods are called in GetContent, setting the attributes, and we then concanate and 		return. 
+- To test, we first mock the httpClient in the test setup :
+```csharp
+    _streamer = new Streamer();
+    _handler = new Mock<HttpMessageHandler>();
+    _client = _handler.CreateClient();
  ```
-  
-  -When the request is sent, a zenDesk problem ticket is sent to the above account. It contains only the relevant informations and is made interactive in the ticket_helper.rb file contained in app/helpers i.e. no mention of column if no column is selected :
-  
-  ```ruby
-  		if params[:battery_id] != ""
-			battery = "They mentionned the battery with ID #{params[:battery_id]}.
-			"
-			comment << battery
-		end
-		if params[:column_id] != ""
-			column = "The column with ID #{params[:column_id]} was specified.
-			"
-			comment << column
-		end
-		if params[:elevator_id] != ""
-			elevator = "The elevator with ID #{params[:elevator_id]} was selected.
-			"
-			comment << elevator
-		end
-		if params[:employee_id] != ""
-			employee = "The employee with ID #{params[:employee_id]} must be contacted.
-			"
-			comment << employee
-		end
-  ```
-  
-  ### Gems used:
+	 
+ -We then set the handle attribute to the api route to mock and the mock response. WE then call the api and check the status and expect non-empty request body :
+ ```csharp
+	_handler.SetupRequest(HttpMethod.Get, urlTemperature)
+   .ReturnsResponse("{'main':{'temp':0,'feels_like':1}}");  
 
-```ruby 
- gem 'bootstrap_form' (only gem used in this project)
-```
-  
-  ### Explanations for third requirement:
-  
- -First lines of seed.rb and very much self-explanatory. When a customer is created, we create an intervention and "attach" it, with random id's for the author and employee :
- 
- ```ruby
- inter_ = create_intervention()
-        customer_.interventions << inter_
-        inter_.author = Employee.find(random)
-        inter_.employee = Employee.find(random2)
+    var response = _client.GetAsync(urlTemperature).Result;
+    var content = response.Content.ReadAsStringAsync().Result;
 
-
-
-        lead_ = lead_create(department)
-        customer_.lead = lead_
-        
-        1.upto(rand(1..3)) do |bu|
-            building_ = building_create(bu)
-            customer_.buildings << building_
-
-
-            building_.interventions << inter_
-            customer_.interventions << inter_
-
+    Assert.True(response.IsSuccessStatusCode);
+    Assert.That( content, Is.Not.Empty);
  ```
- 
- ### Explanation for fourth requirements:
- 
- -Repo : https://github.com/kemtardif/Rocket_Elevators_Foundation_RESTAPI
- -The readme on this repo is not up-to-date. All new informations are HERE.
- -REST api url : https://rocket-elevators-foundation-restapi.azurewebsites.net
- -API routes:
- 
- GET: https://rocket-elevators-foundation-restapi.azurewebsites.net/pendingRequests => return pending requests with no start date
-GET: https://rocket-elevators-foundation-restapi.azurewebsites.net/inProgressRequests => return requests with start date but no end date
-GET: https://rocket-elevators-foundation-restapi.azurewebsites.net/completedRequests => return requests with start and end date (Completed)
-
-PUT https://rocket-elevators-foundation-restapi.azurewebsites.net/api/interventions/endIntervention/2 => add end date and change status to "Completed
-PUT https://rocket-elevators-foundation-restapi.azurewebsites.net/api/interventions/startIntervention/2 => add start date and change status to "Inprogress"
-
--NOTE that the first put will return not found (404) if the request is made on interventions already done or not started yet (as measure of security)
--NOTE that the second put will return not found (404) on interventions already started or done (as measure of security).
-
--No parameters are sent for the requests.
-
--THe relevant part in the code are the intervention model containing the attributes, and the controller with the various end points, similar to those we did last week:
-
-``c#
-        [HttpPut("/endIntervention/{id}")]
-        public async Task<ActionResult<Intervention>> endIntervention(long Id)
-        {
-            var toUpdate = _context.interventions.FirstOrDefault(u => u.id == Id);
-
-            if (toUpdate.startDateIntervention != null &&  toUpdate.endDateIntervention == null){
-                toUpdate.endDateIntervention =  DateTime.Now;
-                toUpdate.status = "Completed";
-
-            }else{
-
-                return NotFound();
-            }
-
-
-            _context.interventions.Update(toUpdate);
-            await  _context.SaveChangesAsync();
-
-
-            return  toUpdate;
-        }
+-We only check for a single route, since this is redundant and the code is exactly the same for the other routes. we then check that the methods setting the 				attributes to the right string :
+```csharp
+    Assert.That( _streamer.news, Is.Not.Empty);
+    Assert.AreEqual( "<div> World News : The Wall Street Journal</div>", _streamer.news );
 ```
+-Finally, we check that getContent return the right string, containing the right informations :
+```csharp
+	Assert.That( _streamer.content, Is.Not.Empty);
+    Assert.IsTrue(_streamer.content.Contains(_streamer.temperature));
+    Assert.IsTrue(_streamer.content.Contains(_streamer.news));
+    Assert.IsTrue(_streamer.content.Contains(_streamer.advertizing));
+ ```   
+		
 
--You can import the postman library at : https://www.getpostman.com/collections/50e5d7319703673f4583
+
 
 
 ## Developper

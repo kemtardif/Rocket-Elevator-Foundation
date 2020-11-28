@@ -9,20 +9,21 @@ FactoryGirl.define do
         f.report "hello"
 
     end
+    factory :employee do |f|
+        f.id 2
+        f.first_name "Bob"
+        f.last_name "the Builder"
+       # f.user_id 1
+       # f.user FactoryGirl.build_stubbed(:user)
+    end
+
 
     factory :user do |f|
         f.id 1
         f.email "aaa@bbb.com"
         f.password "password"
+        f.employee FactoryGirl.build_stubbed(:employee)
         
-    end
-
-    factory :employee do |f|
-        f.id 2
-        f.first_name "Bob"
-        f.last_name "the Builder"
-        f.user_id 1
-        f.user FactoryGirl.build_stubbed(:user)
     end
 
     factory :building do |f|

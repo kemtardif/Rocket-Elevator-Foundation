@@ -40,6 +40,7 @@ RSpec.configure do |config|
   config.include FactoryGirl::Syntax::Methods
   config.include Rails.application.routes.url_helpers
   config.include Capybara::DSL
+  config.include ControllerMacros, :type => :request
 
 
   ############ LIST OF THE VARIOUS STUBS NEEDED TO MAKE THE REQUIRED TESTS
