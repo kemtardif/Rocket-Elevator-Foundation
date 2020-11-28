@@ -72,84 +72,84 @@
 	-Visiting the Intervention page as a logged-in user and check redirect if user is not employee. First, we test for user that is also employee, and expect current 
 		path of "/interventions/new". We then test for a user that's not an employee and expect a redirect to the root path :
 	
-	```ruby
-		@user = FactoryGirl.build_stubbed(:user, employee: nil)
-		sign_in @user
+```ruby
+	@user = FactoryGirl.build_stubbed(:user, employee: nil)
+	sign_in @user
 
-		visit new_intervention_url
-		expect(current_path).to eq root_path   
-	```
+	visit new_intervention_url
+	expect(current_path).to eq root_path   
+```
 	
 	-We test the create intervention path : we first skip authentification (this is not what is tested here) and make a post request with the required parameters to the 			create path of the interventions controller and expect Intervention.count +1 (intervention is created), expect a redirect and a flash notice :
 	
-	```ruby
-		expect { post :create, params: valid_params }.to change(Intervention, :count).by(1)
-		expect(response.status).to eq(302)
-		expect(flash[:notice]).to match("Your Intervention Request was succesfully sent!")
-	```
+```ruby
+	expect { post :create, params: valid_params }.to change(Intervention, :count).by(1)
+	expect(response.status).to eq(302)
+	expect(flash[:notice]).to match("Your Intervention Request was succesfully sent!")
+```
 	
 	-We test a lead creation, but this time by visiting the root page and filling in the required  form fields. We again expect Lead.count +1, a redirect to the top of page 
 		and a flash notice :
 		
-	```ruby
-		expect {click_button "btnForm"}.to change(Lead, :count).by(1)
+```ruby
+	expect {click_button "btnForm"}.to change(Lead, :count).by(1)
 
-		expect(page).to have_content 'Message Sent!'
-		expect(current_path).to eq "/home"
-	```
+	expect(page).to have_content 'Message Sent!'
+	expect(current_path).to eq "/home"
+```
 	
 	-Finally, we check the Twilio service to be called when an elevator is updated. At update, we expect The Twilio model to create an instance with the right message, 
 		and make a stub of that instance and expect that the "call" method is...called :
 		
-	```ruby
-		expect(TwilioTextMessenger).to receive(:new).with(message).and_return(twilio)
-		expect(twilio).to receive(:call)
+```ruby
+	expect(TwilioTextMessenger).to receive(:new).with(message).and_return(twilio)
+	expect(twilio).to receive(:call)
 
-		elevator.run_callbacks :update
-	```
+	elevator.run_callbacks :update
+```
 	-Factory_girl was used to create stubs of all the required instances, thus not having to actually connect to the database. The factory AND the macro used for employee 			login are found in spec/support.
 	
 ### Explanations for third requirement:
 
 	-For ElevatorMedia in dotnet, we have to folders, one for the actual ElevatorMedia name space and one for tests. The logic is a bit different here :
 		the streamer class as string attributes:
-	```c#
-		public string news {  get;  set;  }  
-		public string advertizing {  get;  set;  }  
-		public string temperature {  get;  set;  }
-		public string content {  get;  set;  }  
-	```
+```csharp
+	public string news {  get;  set;  }  
+	public string advertizing {  get;  set;  }  
+	public string temperature {  get;  set;  }
+	public string content {  get;  set;  }  
+```
 	-We call the three methods, which will set those attributes to the desired strings. Thos methods are called in GetContent, setting the attributes, and we then concanate and return. 
 	- To test, we first mock the httpClient in the test setup :
-	```c#
-	    _streamer = new Streamer();
-	    _handler = new Mock<HttpMessageHandler>();
-	    _client = _handler.CreateClient();
-	 ```
+```csharp
+    _streamer = new Streamer();
+    _handler = new Mock<HttpMessageHandler>();
+    _client = _handler.CreateClient();
+ ```
 	 
 	 -We then set the handle attribute to the api route to mock and the mock response. WE then call the api and check the status and expect non-empty request body :
-	 ```c#
-		_handler.SetupRequest(HttpMethod.Get, urlTemperature)
-	   .ReturnsResponse("{'main':{'temp':0,'feels_like':1}}");  
+ ```csharp
+	_handler.SetupRequest(HttpMethod.Get, urlTemperature)
+   .ReturnsResponse("{'main':{'temp':0,'feels_like':1}}");  
 
-	    var response = _client.GetAsync(urlTemperature).Result;
-	    var content = response.Content.ReadAsStringAsync().Result;
+    var response = _client.GetAsync(urlTemperature).Result;
+    var content = response.Content.ReadAsStringAsync().Result;
 
-	    Assert.True(response.IsSuccessStatusCode);
-	    Assert.That( content, Is.Not.Empty);
-	 ```
+    Assert.True(response.IsSuccessStatusCode);
+    Assert.That( content, Is.Not.Empty);
+ ```
 	   -We only check for a single route, since this is redundant and the code is exactly the same for the other routes. we then check that the methods setting the 		attributes to the right string :
-	```c#
-	    Assert.That( _streamer.news, Is.Not.Empty);
-            Assert.AreEqual( "<div> World News : The Wall Street Journal</div>", _streamer.news );
-        ```
+```csharp
+    Assert.That( _streamer.news, Is.Not.Empty);
+    Assert.AreEqual( "<div> World News : The Wall Street Journal</div>", _streamer.news );
+```
 	-Finally, we check that getContent return the right string, containing the right informations :
-	```c#
-		Assert.That( _streamer.content, Is.Not.Empty);
-            Assert.IsTrue(_streamer.content.Contains(_streamer.temperature));
-            Assert.IsTrue(_streamer.content.Contains(_streamer.news));
-            Assert.IsTrue(_streamer.content.Contains(_streamer.advertizing));
-	 ```   
+```csharp
+	Assert.That( _streamer.content, Is.Not.Empty);
+    Assert.IsTrue(_streamer.content.Contains(_streamer.temperature));
+    Assert.IsTrue(_streamer.content.Contains(_streamer.news));
+    Assert.IsTrue(_streamer.content.Contains(_streamer.advertizing));
+ ```   
 		
 
 
