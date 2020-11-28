@@ -6,6 +6,8 @@
 -Implementation of tests for various section of the RoR app.
 -Implement and test (using Nunit) of the ElevatorMedia namespace with single class Streamer, having a method getContent that return a string of HTML media content.
 
+-NOTE : this the updated readme and include the informations for rails and csharp.
+
 ### Explanations for first requirement:
 
 -The following gem were added (Faraday wasn't used) :
