@@ -24,17 +24,17 @@ gem 'rspec-rails'
 
 -The api calls were stubbed in spec/spec_helper.rb using WebMock to return fixed content. For example :
 
-``ruby
-  config.before(:each) do
-    stub_request(:get, "http://api.openweathermap.org/data/2.5/weather?appid=7b69ac2d5782ffb6d49764e85311576a&q=montreal,ca&units=metric").
-    with(
-      headers: {
-     'Accept'=>'*/*',
-     'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-     'Host'=>'api.openweathermap.org',
-     'User-Agent'=>'Ruby'
-      }).
-    to_return(status: 200, body: {"main":{"temp":-0.13,"feels_like":0}}.to_json, headers: {})
+```ruby
+  	config.before(:each) do
+	stub_request(:get, "http://api.openweathermap.org/data/2.5/weather?appid=7b69ac2d5782ffb6d49764e85311576a&q=montreal,ca&units=metric").
+	with(
+	headers: {
+	'Accept'=>'*/*',
+	'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+	'Host'=>'api.openweathermap.org',
+	'User-Agent'=>'Ruby'
+	}).
+	to_return(status: 200, body: {"main":{"temp":-0.13,"feels_like":0}}.to_json, headers: {})
 ```
 -The structure of the JSON response is such that no change should be made in production code when using real api calls.
 
