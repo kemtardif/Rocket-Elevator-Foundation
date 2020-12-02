@@ -346,7 +346,7 @@ def faker_data
 
         inter_ = create_intervention()
         customer_.interventions << inter_
-        inter_.author = Employee.find(random)
+        inter_.author = User.find(random)
         inter_.employee = Employee.find(random2)
 
 
