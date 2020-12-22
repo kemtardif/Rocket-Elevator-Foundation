@@ -278,6 +278,7 @@ end
           user_.password = user[1]
           user_.add_role :employee
           employee = Employee.new
+          employee.email = user[0]
           employee.last_name = user[2]
           employee.first_name = user[3]
           employee.title = user[4]

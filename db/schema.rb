@@ -105,6 +105,7 @@ ActiveRecord::Schema.define(version: 2020_11_16_170216) do
     t.string "first_name"
     t.string "last_name"
     t.string "title"
+    t.string "email"
     t.bigint "user_id"
     t.index ["user_id"], name: "index_employees_on_user_id"
   end
