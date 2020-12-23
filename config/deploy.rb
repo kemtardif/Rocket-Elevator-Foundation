@@ -3,7 +3,7 @@ lock "~> 3.14.1"
 
 before 'deploy', 'rvm1:install:ruby'
 set :rvm_map_bins, [ 'rake', 'gem', 'bundle', 'ruby', 'puma', 'pumactl' ]
-set :application, "KemTardif"
+set :application, "kemtardif"
 set :repo_url, "git@github.com:kemtardif/Rocket-Elevator-Foundation.git"
 
 
