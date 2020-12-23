@@ -38,5 +38,3 @@
 //= require Chart.bundle
 
 //= require gmaps/google
-
-//= require google_analytics
