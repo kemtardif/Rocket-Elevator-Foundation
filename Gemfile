@@ -32,6 +32,10 @@ gem 'jbuilder', '~> 2.5'
 gem "bootstrap_form", "~> 4.0"
 gem 'toastr-rails'
 
+############NEW RELIC###############
+
+gem 'newrelic_rpm'
+
 
 #######TDD##############################
 
