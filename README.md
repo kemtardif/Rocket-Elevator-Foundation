@@ -1,4 +1,4 @@
-# Rocket_Elevators : MAINT STUFF INTO PRODUCTION.
+# Rocket_Elevators : MAINTENING STUFF INTO PRODUCTION.
 
 -WE created a g-mail account for you to access the services : supercodeboxx@gmail.com. Pass word c0deb0xx1!
 -YOu can access both New Relic and Google Analytics using the above account.
