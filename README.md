@@ -3,7 +3,7 @@
 -WE created a g-mail account for you to access the services : supercodeboxx@gmail.com. Pass word c0deb0xx1!
 -YOu can access both New Relic and Google Analytics using the above account.
 
--FOr the deployment, we created a new EC2 instance with ubuntu 18.04. WE then connected via ssh and installed rvm, ruby, rails and the necessary packages. Plus nginx. The rest follows what we have done earlier in the program. WE also migrated the mysql database to a lightsail instanceAddress : kemverynice.com
+-FOr the deployment, we created a new EC2 instance with ubuntu 18.04. WE then connected via ssh and installed rvm, ruby, rails and the necessary packages. Plus nginx. The rest follows what we have done earlier in the program. WE also migrated the mysql database to a lightsail instance. Address : kemverynice.com. To access admin section : kem@tardif.com, password : password. 
 
 -For Google Analytics, you can access the portal via analytics.google.com. We simply created an account and added the following script into the html layout, which then tracks the traffic. If you go to kemverynice.com, you will see the live stream in Google Analytics change after seconds :
 
